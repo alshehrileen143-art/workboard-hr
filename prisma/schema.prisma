@@ -5,15 +5,13 @@
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
 generator client {
-  provider        = "prisma-client"
-  output          = "../src/generated/prisma"
-  previewFeatures = ["postgresqlExtensions"]
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
 }
 
 datasource db {
-  provider   = "postgresql"
-  url        = env("DATABASE_URL")
-  extensions = [vector]
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
 }
 model Employee {
   id                    String              @id @default(cuid())
@@ -27,7 +25,7 @@ model Employee {
   leaveBalanceNote      String?
   status                EmployeeStatus      @default(ACTIVE)
   nationalId            String?
-  iqamaExpiryDate       DateTime?           @db.Date
+  iqamaExpiryDate       DateTime?
   phoneNumber           String?
   emergencyContactName  String?
   emergencyContactPhone String?
@@ -85,7 +83,7 @@ model Attendance {
   id         String           @id @default(cuid())
   employeeId String
   employee   Employee         @relation(fields: [employeeId], references: [id])
-  date       DateTime         @db.Date
+  date       DateTime
   checkIn    DateTime?
   checkOut   DateTime?
   source     AttendanceSource @default(SELF)
@@ -144,9 +142,9 @@ model LeaveRequest {
   employeeId   String
   employee     Employee           @relation(fields: [employeeId], references: [id])
   type         LeaveType
-  startDate    DateTime?          @db.Date
-  endDate      DateTime?          @db.Date
-  requestDate  DateTime?          @db.Date
+  startDate    DateTime?
+  endDate      DateTime?
+  requestDate  DateTime?
   hours        Float?
   reason       String
   managerStatus LeaveRequestStatus @default(PENDING)
@@ -169,10 +167,10 @@ model EmployeeAuditLog {
 }
 
 model PolicyChunk {
-  id           String                       @id @default(cuid())
+  id           String   @id @default(cuid())
   content      String
   chapterTitle String?
   articleTitle String?
-  embedding    Unsupported("vector(1536)")?
-  createdAt    DateTime                     @default(now())
+  embedding    String? // JSON-encoded array of floats (cosine similarity computed in JS, see ask-labor-law/actions.ts)
+  createdAt    DateTime @default(now())
 }

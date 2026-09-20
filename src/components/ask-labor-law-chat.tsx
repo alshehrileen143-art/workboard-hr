@@ -41,6 +41,11 @@ export function AskLaborLawChat() {
     const trimmed = question.trim();
     if (!trimmed || isPending) return;
 
+    const history = messages
+      .filter((m) => m.role === "user" || m.role === "assistant")
+      .slice(-2)
+      .map((m) => ({ role: m.role, content: m.content }));
+
     setMessages((prev) => [
       ...prev,
       { id: nextMessageId(), role: "user", content: trimmed },
@@ -50,6 +55,7 @@ export function AskLaborLawChat() {
     startTransition(async () => {
       const formData = new FormData();
       formData.set("question", trimmed);
+      formData.set("history", JSON.stringify(history));
       const initialState: AskLaborLawState = {};
       const result = await askLaborLawQuestion(initialState, formData);
 
